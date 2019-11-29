@@ -74,7 +74,7 @@ describe('datatablesQuery tests', function () {
             };
 
             expect(query.buildFindParameters(oneSearchableColumn))
-                .to.deep.equal({name: new RegExp(oneSearchableColumn.search.value, 'i')});
+                .to.deep.equal({ name: new RegExp(oneSearchableColumn.search.value, 'i') });
             done();
         });
 
@@ -109,6 +109,31 @@ describe('datatablesQuery tests', function () {
                     });
                 done();
             });
+
+        it('should return a simple query if searching in a specific column', function (done) {
+            var searchText = 'searchText1'
+            var columnSearch = {
+                search: {
+                    value: '',
+                    regex: false
+                },
+                columns: [
+                    {
+                        data: 'name',
+                        name: '',
+                        searchable: 'true',
+                        search: {
+                            value: searchText,
+                            regex: false
+                        }
+                    }
+                ]
+            };
+
+            expect(query.buildFindParameters(columnSearch))
+                .to.deep.equal({ name: new RegExp(searchText, 'i') });
+            done();
+        });
     });
 
     describe('buildSortParameters tests', function () {
@@ -365,12 +390,12 @@ describe('datatablesQuery tests', function () {
         it('should reject promise if params argument is lacking draw start or length', function (done) {
             var query = datatablesQuery({});
 
-            async.each([{start: 0, length: 10}, {draw: 1, length: 10}, {draw: 1, start: 0}], function (params, cb) {
+            async.each([{ start: 0, length: 10 }, { draw: 1, length: 10 }, { draw: 1, start: 0 }], function (params, cb) {
                 var success = sinon.spy(),
                     error = sinon.spy();
 
                 async.series([
-                    function resolvePromise (cb) {
+                    function resolvePromise(cb) {
                         query.run(params).then(function () {
                             success();
                             cb();
@@ -379,7 +404,7 @@ describe('datatablesQuery tests', function () {
                             cb();
                         });
                     },
-                    function test () {
+                    function test() {
                         expect(success.callCount).to.equal(0);
                         expect(error.calledOnce).to.equal(true);
                         cb();
@@ -408,7 +433,7 @@ describe('datatablesQuery tests', function () {
             expect(query.buildFindParameters(params)).to.equal(null);
 
             async.series([
-                function resolvePromise (cb) {
+                function resolvePromise(cb) {
                     query.run(params).then(function () {
                         success();
                         cb();
@@ -417,12 +442,12 @@ describe('datatablesQuery tests', function () {
                         cb();
                     });
                 },
-                function test (cb) {
+                function test(cb) {
                     expect(success.callCount).to.equal(0);
                     expect(error.calledOnce).to.equal(true);
                     cb();
                 },
-                function end () {
+                function end() {
                     done();
                 }
             ]);
@@ -459,7 +484,7 @@ describe('datatablesQuery tests', function () {
             expect(query.buildSortParameters(params)).to.equal(null);
 
             async.series([
-                function resolvePromise (cb) {
+                function resolvePromise(cb) {
                     query.run(params).then(function () {
                         success();
                         cb();
@@ -468,12 +493,12 @@ describe('datatablesQuery tests', function () {
                         cb();
                     });
                 },
-                function test (cb) {
+                function test(cb) {
                     expect(success.callCount).to.equal(0);
                     expect(error.calledOnce).to.equal(true);
                     cb();
                 },
-                function end () {
+                function end() {
                     done();
                 }
             ]);

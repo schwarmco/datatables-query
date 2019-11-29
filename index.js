@@ -33,7 +33,7 @@ var async = require('async'),
     },
 
     /**
-     * Methdd buildFindParameters
+     * Method buildFindParameters
      * Builds a MongoDB find expression based on DataTables param object
      * - If no search text if provided (in params.search.value) an empty object is returned, meaning all data in DB will
      * be returned.
@@ -63,6 +63,15 @@ var async = require('async'),
             findParameters = {},
             searchRegex,
             searchOrArray = [];
+
+        // is there a column-specific search?
+        var columnSearches = params.columns.filter(col => col.search && col.search.value !== '')
+        columnSearches.forEach(s => {
+            findParameters[s.data] = new RegExp(s.search.value, 'i')
+        })
+        if (findParameters.length) {
+            return findParameters
+        }
 
         if (searchText === '') {
             return findParameters;
@@ -175,10 +184,10 @@ var async = require('async'),
             return new Promise(function (fullfill, reject) {
 
                 async.series([
-                    function checkParams (cb) {
+                    function checkParams(cb) {
                         if (isNaNorUndefined(draw, start, length)) {
                             return cb(new Error('Some parameters are missing or in a wrong state. ' +
-                            'Could be any of draw, start or length'));
+                                'Could be any of draw, start or length'));
                         }
 
                         if (!findParameters || !sortParameters || !selectParameters) {
@@ -186,7 +195,7 @@ var async = require('async'),
                         }
                         cb();
                     },
-                    function fetchRecordsTotal (cb) {
+                    function fetchRecordsTotal(cb) {
                         Model.count({}, function (err, count) {
                             if (err) {
                                 return cb(err);
@@ -195,7 +204,7 @@ var async = require('async'),
                             cb();
                         });
                     },
-                    function fetchRecordsFiltered (cb) {
+                    function fetchRecordsFiltered(cb) {
                         Model.count(findParameters, function (err, count) {
                             if (err) {
                                 return cb(err);
@@ -204,7 +213,7 @@ var async = require('async'),
                             cb();
                         });
                     },
-                    function runQuery (cb) {
+                    function runQuery(cb) {
                         Model
                             .find(findParameters)
                             .select(selectParameters)
@@ -224,7 +233,7 @@ var async = require('async'),
                             });
 
                     }
-                ], function resolve (err, results) {
+                ], function resolve(err, results) {
                     if (err) {
                         reject({
                             error: err
