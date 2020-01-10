@@ -2,6 +2,19 @@
 
 var async = require('async'),
 
+    options = {
+        useTextIndex: false
+    },
+
+    /**
+     * Method useTextIndex
+     * Sets the Option to use the Mongo Text Index on the given Model
+     * @params {boolean}
+     */
+    useTextIndex = function (flag) {
+       options.useTextIndex = flag 
+    },
+
     /**
      * Method getSearchableFields
      * Returns an array of fieldNames based on DataTable params object
@@ -86,9 +99,17 @@ var async = require('async'),
             return findParameters;
         }
 
+        if (options.useTextIndex) {
+            return { 
+                $text: { 
+                    $search: searchText
+                }
+            }
+        }
+
         searchableFields.forEach(function (field) {
             var orCondition = {};
-            orCondition[field] = searchRegex;
+            orCondition[field] = { $regex: searchRegex };
             searchOrArray.push(orCondition);
         });
 
@@ -262,7 +283,8 @@ var async = require('async'),
             isNaNorUndefined: isNaNorUndefined,
             buildFindParameters: buildFindParameters,
             buildSortParameters: buildSortParameters,
-            buildSelectParameters: buildSelectParameters
+            buildSelectParameters: buildSelectParameters,
+            useTextIndex: useTextIndex
         };
     };
 
