@@ -3,7 +3,8 @@
 var async = require('async'),
 
     options = {
-        useTextIndex: false
+        useTextIndex: false,
+        customFindParameters: false
     },
 
     /**
@@ -12,7 +13,7 @@ var async = require('async'),
      * @params {boolean}
      */
     useTextIndex = function (flag) {
-       options.useTextIndex = flag 
+       options.useTextIndex = flag
     },
 
     /**
@@ -100,8 +101,8 @@ var async = require('async'),
         }
 
         if (options.useTextIndex) {
-            return { 
-                $text: { 
+            return {
+                $text: {
                     $search: searchText
                 }
             }
@@ -109,7 +110,7 @@ var async = require('async'),
 
         searchableFields.forEach(function (field) {
             var orCondition = {};
-            orCondition[field] = { $regex: searchRegex };
+            orCondition[field] = searchRegex;
             searchOrArray.push(orCondition);
         });
 
@@ -201,6 +202,10 @@ var async = require('async'),
                 selectParameters = buildSelectParameters(params),
                 recordsTotal,
                 recordsFiltered;
+
+            if (options.customFindParameters) {
+                findParameters = customFindParameters(findParameters);
+            }
 
             return new Promise(function (fullfill, reject) {
 
