@@ -17,6 +17,15 @@ var async = require('async'),
     },
 
     /**
+     * Method setCustomFindParameters
+     * Allows the use of a Hook, after FindParameters were built
+     * @params {function}
+     */
+    useCustomFindParameters = function (fn) {
+        options.customFindParameters = fn
+    },
+
+    /**
      * Method getSearchableFields
      * Returns an array of fieldNames based on DataTable params object
      * All columns in params.columns that have .searchable == true field will have the .data param returned in an String
@@ -204,7 +213,7 @@ var async = require('async'),
                 recordsFiltered;
 
             if (options.customFindParameters) {
-                findParameters = customFindParameters(findParameters);
+                findParameters = options.customFindParameters(findParameters);
             }
 
             return new Promise(function (fullfill, reject) {
@@ -289,7 +298,8 @@ var async = require('async'),
             buildFindParameters: buildFindParameters,
             buildSortParameters: buildSortParameters,
             buildSelectParameters: buildSelectParameters,
-            useTextIndex: useTextIndex
+            useTextIndex: useTextIndex,
+            useCustomFindParameters: useCustomFindParameters
         };
     };
 
